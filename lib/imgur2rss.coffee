@@ -30,13 +30,23 @@ exports.album2rss = (clientId, albumId, cb) ->
       title: body.data.title
       site_url: body.data.link
       generator: 'imgur2rss'
+      custom_namespaces: {
+        'media': 'http://search.yahoo.com/mrss'
+      }
       ttl: 60 * 12
     )
 
-    for image in body.data.images.slice 0, 10
+    for image in body.data.images.slice 0, 500
       feed.item
         title: image.title ? image.id
         url: "http://imgur.com/#{ image.id }"
         date: new Date(image.datetime * 1000)
         description: """<img src="#{ image.link }" alt="#{ image.title ? image.id }"/>"""
+        custom_elements: [
+          'media:content': {
+            '_attr': {
+              'url': image.link
+            }
+          }
+        ]
     cb null, feed.xml(indent: true)
